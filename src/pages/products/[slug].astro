@@ -4,6 +4,7 @@ import ProductCard from '../../components/ProductCard.astro';
 import { getCollection, render } from 'astro:content';
 import { formatPrice, categoryLabel, colorHex, sortProducts } from '../../lib/catalog';
 import { withBase } from '../../lib/url';
+import { site } from '../../site.config';
 
 export async function getStaticPaths() {
   const all = (await getCollection('products')).sort(sortProducts);
@@ -23,7 +24,7 @@ const { data } = product;
 const { Content } = await render(product);
 ---
 
-<Base title={`${data.name} — Fernly`} description={data.summary}>
+<Base title={`${data.name} — ${site.brand}`} description={data.summary}>
   <main class="pdp">
     <div class="container">
       <a class="pdp__back" href={withBase('/shop')}>&larr; Back to shop</a>

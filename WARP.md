@@ -10,8 +10,9 @@ Visual direction: light and airy, mostly-white backgrounds, soft sage-green grap
 refined editorial typography, and generous "executive" spacing. The tone implies care,
 comfort, and durability.
 
-> **Brand name is a placeholder.** "Fernly" is used throughout as a stand-in. Update it in
-> `src/site.config.ts` once the real name is decided.
+> **Brand:** Action Bodywear. The name is centralised in `src/site.config.ts` (`brand`),
+> and the logo is `src/components/Logo.astro` (an "AB" gradient badge evoking the official
+> blue→green logo). Source artwork: `brand/action-bodywear-tag.pdf`.
 
 > **Tone guard-rail:** do **not** state or imply the company is "locally made", small, or
 > hand-made. Keep copy focused on craft, comfort, fit, and longevity.

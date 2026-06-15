@@ -1,0 +1,48 @@
+---
+import { site } from '../site.config';
+
+interface Props {
+  showName?: boolean;
+}
+
+const { showName = true } = Astro.props;
+---
+
+<span class="logo">
+  <span class="logo__badge" aria-hidden="true">AB</span>
+  {showName && <span class="logo__name">{site.brand}</span>}
+</span>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
+  /* "AB" monogram badge — uses the brand's blue->green gradient so the
+     logo keeps its identity while still reading on the light UI. */
+  .logo__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    background: linear-gradient(45deg, #2b7fc1 0%, #2fa3a0 50%, #6cbf3f 100%);
+    color: #fff;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.03em;
+    line-height: 1;
+    box-shadow: var(--shadow-sm);
+  }
+  .logo__name {
+    font-family: var(--font-display);
+    font-weight: var(--weight-semibold);
+    font-size: 1.22rem;
+    letter-spacing: 0.01em;
+    color: var(--color-heading);
+    white-space: nowrap;
+  }
+</style>

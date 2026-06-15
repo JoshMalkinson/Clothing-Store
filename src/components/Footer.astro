@@ -1,6 +1,7 @@
 ---
 import { site } from '../site.config';
 import { withBase } from '../lib/url';
+import Logo from './Logo.astro';
 const year = new Date().getFullYear();
 ---
 
@@ -8,11 +9,7 @@ const year = new Date().getFullYear();
   <div class="container footer__inner">
     <div class="footer__brand">
       <a class="brand" href={withBase('/')} aria-label={`${site.brand} home`}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M12 2.5C12 2.5 4 6.5 4 13a8 8 0 0 0 16 0c0-6.5-8-10.5-8-10.5Z" fill="var(--color-accent)" />
-          <path d="M12 21.5V8.5" stroke="var(--color-accent-deep)" stroke-width="1.5" stroke-linecap="round" />
-        </svg>
-        <span class="brand__name">{site.brand}</span>
+        <Logo />
       </a>
       <p class="footer__blurb">{site.footer.blurb}</p>
     </div>

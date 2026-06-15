@@ -40,7 +40,7 @@ export interface FooterColumn {
 }
 
 export const site = {
-  brand: 'Fernly',
+  brand: 'Action Bodywear',
   tagline: 'Activewear that keeps up',
   description:
     'Considered activewear for kids and teenagers — soft, durable, and made to move from the first bell to the final whistle.',

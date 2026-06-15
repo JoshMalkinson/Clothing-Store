@@ -1,10 +1,11 @@
-# Fernly — Activewear marketing site
+# Action Bodywear — Activewear marketing site
 
 A fast, polished single-page advertising site for a kids & teenagers activewear brand.
 Built with **Astro** + **SCSS**. Light, airy, mostly-white design with soft sage-green
 accents and refined typography.
 
-> `Fernly` is a placeholder brand name — change it (and the copy) in `src/site.config.ts`.
+> Brand name and copy live in `src/site.config.ts`. The logo is `src/components/Logo.astro`
+> (an "AB" gradient badge); source artwork is in `brand/`.
 
 ## Quickstart
 

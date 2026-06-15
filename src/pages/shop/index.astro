@@ -3,13 +3,14 @@ import Base from '../../layouts/Base.astro';
 import ProductCard from '../../components/ProductCard.astro';
 import { getCollection } from 'astro:content';
 import { categories, sortProducts } from '../../lib/catalog';
+import { site } from '../../site.config';
 
 const products = (await getCollection('products')).sort(sortProducts);
 ---
 
 <Base
-  title="Shop — Fernly"
-  description="Browse the full Fernly range of activewear for kids and teenagers, ages 4 to 16."
+  title={`Shop — ${site.brand}`}
+  description={`Browse the full ${site.brand} range of activewear for kids and teenagers, ages 4 to 16.`}
 >
   <main>
     <section class="shop-head">
