@@ -1,0 +1,96 @@
+---
+import { site } from '../site.config';
+const { cta } = site;
+---
+
+<section class="cta section" id="newsletter">
+  <div class="container">
+    <div class="cta__panel">
+      <div class="cta__copy">
+        <p class="eyebrow">{cta.eyebrow}</p>
+        <h2 class="cta__title">{cta.title}</h2>
+        <p class="cta__sub">{cta.subtitle}</p>
+      </div>
+
+      <form class="cta__form" action="#" method="post" novalidate>
+        <label class="sr-only" for="cta-email">Email address</label>
+        <input
+          id="cta-email"
+          class="cta__input"
+          type="email"
+          name="email"
+          placeholder={cta.placeholder}
+          autocomplete="email"
+          required
+        />
+        <button class="btn btn--primary" type="submit">{cta.button}</button>
+      </form>
+
+      <p class="cta__note">{cta.note}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta__panel {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background:
+      radial-gradient(120% 130% at 90% 0%, var(--color-accent-soft), transparent 55%),
+      var(--color-surface-green);
+    border: 1px solid var(--color-line);
+    padding: clamp(2.5rem, 5vw, 4.5rem);
+    text-align: center;
+  }
+  .cta__title {
+    font-size: clamp(1.9rem, 1rem + 3vw, 3rem);
+    margin-top: 0.8rem;
+  }
+  .cta__sub {
+    max-width: 46ch;
+    margin: 1rem auto 0;
+    color: var(--color-text-strong);
+  }
+  .cta__form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    justify-content: center;
+    margin: 2rem auto 0;
+    max-width: 32rem;
+  }
+  .cta__input {
+    flex: 1 1 16rem;
+    padding: 0.9rem 1.2rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--color-line);
+    background: var(--color-bg);
+    color: var(--color-heading);
+    outline: none;
+    transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  }
+  .cta__input::placeholder {
+    color: var(--color-muted);
+  }
+  .cta__input:focus-visible {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 4px var(--color-accent-soft);
+  }
+  .cta__note {
+    margin-top: 1.1rem;
+    font-size: 0.82rem;
+    color: var(--color-muted);
+  }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>

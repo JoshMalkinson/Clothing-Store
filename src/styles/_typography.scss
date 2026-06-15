@@ -1,0 +1,17 @@
+// =============================================================
+//  Fernly · Typography tokens
+// -------------------------------------------------------------
+//  Font families + weights. Swap the families here to restyle
+//  the whole site. The web fonts themselves are loaded via
+//  Google Fonts in `src/layouts/Base.astro`.
+//
+//  Display : Fraunces  — refined, editorial serif (headings)
+//  Sans    : Inter     — clean, neutral grotesque (body / UI)
+// =============================================================
+
+$font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+$font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+$weight-regular: 400;
+$weight-medium: 500;
+$weight-semibold: 600;

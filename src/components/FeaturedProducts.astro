@@ -1,0 +1,57 @@
+---
+import { getCollection } from 'astro:content';
+import { sortProducts } from '../lib/catalog';
+import { withBase } from '../lib/url';
+import ProductCard from './ProductCard.astro';
+
+const featured = (await getCollection('products', ({ data }) => data.featured))
+  .sort(sortProducts)
+  .slice(0, 4);
+---
+
+<section class="featured section" id="featured" aria-label="Featured pieces">
+  <div class="container">
+    <div class="featured__head">
+      <div class="section-head">
+        <p class="eyebrow">Featured pieces</p>
+        <h2 class="section-title">A few favourites to start with.</h2>
+      </div>
+      <a class="btn btn--ghost featured__all" href={withBase('/shop')}>Shop all</a>
+    </div>
+
+    <ul class="featured__grid">
+      {
+        featured.map((product) => (
+          <li>
+            <ProductCard product={product} />
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .featured__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1.25rem;
+  }
+  .featured__grid {
+    display: grid;
+    gap: clamp(1.25rem, 2.5vw, 1.75rem);
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+  }
+  @media (min-width: 640px) {
+    .featured__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1000px) {
+    .featured__grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+</style>

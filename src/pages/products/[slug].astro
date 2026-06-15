@@ -1,0 +1,260 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { getCollection, render } from 'astro:content';
+import { formatPrice, categoryLabel, colorHex, sortProducts } from '../../lib/catalog';
+import { withBase } from '../../lib/url';
+
+export async function getStaticPaths() {
+  const all = (await getCollection('products')).sort(sortProducts);
+  return all.map((product) => ({
+    params: { slug: product.id },
+    props: {
+      product,
+      related: all
+        .filter((p) => p.data.category === product.data.category && p.id !== product.id)
+        .slice(0, 3),
+    },
+  }));
+}
+
+const { product, related } = Astro.props;
+const { data } = product;
+const { Content } = await render(product);
+---
+
+<Base title={`${data.name} — Fernly`} description={data.summary}>
+  <main class="pdp">
+    <div class="container">
+      <a class="pdp__back" href={withBase('/shop')}>&larr; Back to shop</a>
+
+      <div class="pdp__top">
+        <div class="pdp__media" data-category={data.category}>
+          {data.tag && <span class="pdp__tag">{data.tag}</span>}
+          {data.image && <img src={data.image} alt={data.name} />}
+          {!data.image && <span class="pdp__media-note">Add a product photo</span>}
+        </div>
+
+        <div class="pdp__info">
+          <p class="eyebrow">{categoryLabel(data.category)}</p>
+          <h1 class="pdp__name">{data.name}</h1>
+          <p class="pdp__price">{formatPrice(data.price)}</p>
+          <p class="pdp__summary">{data.summary}</p>
+
+          <div class="pdp__block">
+            <h2 class="pdp__label">Colours</h2>
+            <ul class="pdp__colors">
+              {
+                data.colors.map((c) => (
+                  <li>
+                    <span class="swatch" style={`--swatch: ${colorHex(c)}`} />
+                    {c}
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+
+          <div class="pdp__block">
+            <h2 class="pdp__label">Sizes</h2>
+            <ul class="pdp__sizes">
+              {data.sizes.map((s) => <li>{s}</li>)}
+            </ul>
+          </div>
+
+          <div class="pdp__actions">
+            <button class="btn btn--primary" type="button" disabled>Add to bag</button>
+            <p class="pdp__note">Online checkout isn&rsquo;t wired up yet — this is a demo storefront.</p>
+          </div>
+
+          <div class="pdp__desc">
+            <Content />
+          </div>
+        </div>
+      </div>
+
+      {
+        related.length > 0 && (
+          <section class="pdp__related">
+            <h2 class="section-title">More from {categoryLabel(data.category)}</h2>
+            <ul class="pdp__related-grid">
+              {related.map((p) => (
+                <li>
+                  <ProductCard product={p} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+    </div>
+  </main>
+</Base>
+
+<style>
+  .pdp {
+    padding-block: clamp(2rem, 5vw, 3.5rem) clamp(4rem, 8vw, 7rem);
+  }
+  .pdp__back {
+    display: inline-block;
+    margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+    font-size: 0.92rem;
+    color: var(--color-text-strong);
+    transition: color 0.2s var(--ease);
+  }
+  .pdp__back:hover {
+    color: var(--color-accent-deep);
+  }
+  .pdp__top {
+    display: grid;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+  }
+  .pdp__media {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-line);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(120% 90% at 80% 10%, var(--color-accent-soft), transparent 55%),
+      linear-gradient(160deg, var(--color-surface-green), var(--color-bg));
+  }
+  .pdp__media[data-category='cooler-days'] {
+    background: linear-gradient(160deg, var(--color-accent-soft), var(--color-surface));
+  }
+  .pdp__media[data-category='rest-recover'] {
+    background: linear-gradient(160deg, var(--color-surface-green), var(--color-accent-soft));
+  }
+  .pdp__media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .pdp__media-note {
+    font-size: 0.85rem;
+    color: var(--color-muted);
+  }
+  .pdp__tag {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1;
+    background: var(--color-bg);
+    color: var(--color-accent-deep);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-pill);
+    padding: 0.3rem 0.8rem;
+    font-size: 0.74rem;
+    font-weight: var(--weight-semibold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .pdp__name {
+    font-size: clamp(2rem, 1.2rem + 2.5vw, 3rem);
+    margin: 0.6rem 0 0.4rem;
+  }
+  .pdp__price {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--color-accent-deep);
+  }
+  .pdp__summary {
+    margin-top: 1rem;
+    color: var(--color-text);
+    max-width: 46ch;
+  }
+  .pdp__block {
+    margin-top: 1.75rem;
+  }
+  .pdp__label {
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    font-weight: var(--weight-semibold);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-bottom: 0.75rem;
+  }
+  .pdp__colors {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .pdp__colors li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.92rem;
+    color: var(--color-text-strong);
+  }
+  .swatch {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--swatch);
+    box-shadow: inset 0 0 0 1px rgba(24, 29, 25, 0.12);
+  }
+  .pdp__sizes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+  }
+  .pdp__sizes li {
+    padding: 0.5rem 0.9rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    color: var(--color-text-strong);
+  }
+  .pdp__actions {
+    margin-top: 2rem;
+  }
+  .btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .pdp__note {
+    margin-top: 0.75rem;
+    font-size: 0.82rem;
+    color: var(--color-muted);
+  }
+  .pdp__desc {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-line);
+    color: var(--color-text);
+    line-height: 1.7;
+    max-width: 52ch;
+  }
+  .pdp__related {
+    margin-top: clamp(3.5rem, 7vw, 6rem);
+    padding-top: clamp(2.5rem, 5vw, 3.5rem);
+    border-top: 1px solid var(--color-line);
+  }
+  .pdp__related-grid {
+    display: grid;
+    gap: clamp(1.25rem, 2.5vw, 1.75rem);
+    margin-top: 2rem;
+  }
+  @media (min-width: 760px) {
+    .pdp__top {
+      grid-template-columns: 1fr 1fr;
+    }
+    .pdp__related-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  @media (min-width: 1040px) {
+    .pdp__top {
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 4.5rem;
+    }
+  }
+</style>

@@ -1,0 +1,118 @@
+---
+import { site } from '../site.config';
+import { withBase } from '../lib/url';
+const year = new Date().getFullYear();
+---
+
+<footer class="footer" id="contact">
+  <div class="container footer__inner">
+    <div class="footer__brand">
+      <a class="brand" href={withBase('/')} aria-label={`${site.brand} home`}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 2.5C12 2.5 4 6.5 4 13a8 8 0 0 0 16 0c0-6.5-8-10.5-8-10.5Z" fill="var(--color-accent)" />
+          <path d="M12 21.5V8.5" stroke="var(--color-accent-deep)" stroke-width="1.5" stroke-linecap="round" />
+        </svg>
+        <span class="brand__name">{site.brand}</span>
+      </a>
+      <p class="footer__blurb">{site.footer.blurb}</p>
+    </div>
+
+    <nav class="footer__cols" aria-label="Footer">
+      {
+        site.footer.columns.map((col) => (
+          <div class="footer__col">
+            <h4 class="footer__title">{col.title}</h4>
+            <ul>
+              {col.links.map((link) => (
+                <li>
+                  <a href={withBase(link.href)}>{link.label}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </nav>
+  </div>
+
+  <div class="container footer__bottom">
+    <p>© {year} {site.brand}. All rights reserved.</p>
+    <p class="footer__fine">Crafted with care · {site.tagline}</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--color-bg-soft);
+    border-top: 1px solid var(--color-line);
+    padding-top: clamp(3rem, 6vw, 4.5rem);
+  }
+  .footer__inner {
+    display: grid;
+    gap: clamp(2rem, 5vw, 4rem);
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .brand__name {
+    font-family: var(--font-display);
+    font-weight: var(--weight-semibold);
+    font-size: 1.35rem;
+    color: var(--color-heading);
+  }
+  .footer__blurb {
+    margin-top: 1rem;
+    max-width: 34ch;
+    color: var(--color-text);
+    font-size: 0.95rem;
+  }
+  .footer__cols {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+  .footer__title {
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    font-weight: var(--weight-semibold);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-bottom: 1rem;
+  }
+  .footer__col li + li {
+    margin-top: 0.65rem;
+  }
+  .footer__col a {
+    font-size: 0.95rem;
+    color: var(--color-text-strong);
+    transition: color 0.2s var(--ease);
+  }
+  .footer__col a:hover {
+    color: var(--color-accent-deep);
+  }
+  .footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    justify-content: space-between;
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    padding-block: 1.75rem;
+    border-top: 1px solid var(--color-line);
+    font-size: 0.85rem;
+    color: var(--color-muted);
+  }
+  .footer__fine {
+    color: var(--color-muted);
+  }
+  @media (min-width: 760px) {
+    .footer__inner {
+      grid-template-columns: 1.2fr 1.8fr;
+    }
+    .footer__cols {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

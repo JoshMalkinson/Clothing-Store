@@ -1,0 +1,144 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { formatPrice, categoryLabel, colorHex } from '../lib/catalog';
+import { withBase } from '../lib/url';
+
+interface Props {
+  product: CollectionEntry<'products'>;
+}
+
+const { product } = Astro.props;
+const { data, id } = product;
+---
+
+<a class="pcard" href={withBase(`/products/${id}`)} data-category={data.category}>
+  <div class="pcard__media">
+    {data.tag && <span class="pcard__tag">{data.tag}</span>}
+    <span class="pcard__cat">{categoryLabel(data.category)}</span>
+    {
+      data.image && (
+        <img class="pcard__img" src={data.image} alt={data.name} loading="lazy" />
+      )
+    }
+  </div>
+  <div class="pcard__body">
+    <h3 class="pcard__name">{data.name}</h3>
+    <p class="pcard__summary">{data.summary}</p>
+    <div class="pcard__foot">
+      <span class="pcard__price">{formatPrice(data.price)}</span>
+      <span class="pcard__swatches" aria-label={`Colours: ${data.colors.join(', ')}`}>
+        {
+          data.colors.map((c) => (
+            <span class="swatch" style={`--swatch: ${colorHex(c)}`} title={c} />
+          ))
+        }
+      </span>
+    </div>
+  </div>
+</a>
+
+<style>
+  .pcard {
+    display: flex;
+    flex-direction: column;
+    background: var(--color-bg);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    height: 100%;
+    transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease);
+  }
+  .pcard:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+  .pcard__media {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    background:
+      radial-gradient(120% 90% at 80% 12%, var(--color-accent-soft), transparent 55%),
+      linear-gradient(160deg, var(--color-surface-green), var(--color-bg));
+  }
+  .pcard[data-category='on-the-field'] .pcard__media {
+    background:
+      radial-gradient(120% 90% at 80% 12%, var(--color-accent-soft), transparent 55%),
+      linear-gradient(160deg, var(--color-surface), var(--color-bg));
+  }
+  .pcard[data-category='cooler-days'] .pcard__media {
+    background: linear-gradient(160deg, var(--color-accent-soft), var(--color-surface));
+  }
+  .pcard[data-category='rest-recover'] .pcard__media {
+    background: linear-gradient(160deg, var(--color-surface-green), var(--color-accent-soft));
+  }
+  .pcard__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .pcard__tag {
+    position: absolute;
+    top: 0.85rem;
+    left: 0.85rem;
+    z-index: 1;
+    background: var(--color-bg);
+    color: var(--color-accent-deep);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-pill);
+    padding: 0.25rem 0.7rem;
+    font-size: 0.72rem;
+    font-weight: var(--weight-semibold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .pcard__cat {
+    position: absolute;
+    bottom: 0.85rem;
+    left: 0.85rem;
+    z-index: 1;
+    font-size: 0.74rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-accent-deep);
+    opacity: 0.85;
+  }
+  .pcard__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1.25rem 1.25rem 1.4rem;
+    flex: 1;
+  }
+  .pcard__name {
+    font-size: 1.2rem;
+  }
+  .pcard__summary {
+    font-size: 0.92rem;
+    color: var(--color-text);
+  }
+  .pcard__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: auto;
+    padding-top: 1rem;
+  }
+  .pcard__price {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    color: var(--color-heading);
+  }
+  .pcard__swatches {
+    display: inline-flex;
+    gap: 0.35rem;
+  }
+  .swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--swatch);
+    box-shadow: inset 0 0 0 1px rgba(24, 29, 25, 0.12);
+  }
+</style>

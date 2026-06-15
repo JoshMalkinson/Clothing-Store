@@ -1,0 +1,138 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { getCollection } from 'astro:content';
+import { categories, sortProducts } from '../../lib/catalog';
+
+const products = (await getCollection('products')).sort(sortProducts);
+---
+
+<Base
+  title="Shop — Fernly"
+  description="Browse the full Fernly range of activewear for kids and teenagers, ages 4 to 16."
+>
+  <main>
+    <section class="shop-head">
+      <div class="container">
+        <p class="eyebrow">Shop</p>
+        <h1 class="shop-head__title">The full range.</h1>
+        <p class="lede">
+          Considered activewear for ages 4&ndash;16 — built to move and made to last.
+          {products.length} pieces across four collections.
+        </p>
+      </div>
+    </section>
+
+    <section class="section shop">
+      <div class="container">
+        <div class="filters" role="group" aria-label="Filter by collection">
+          <button class="chip" type="button" data-filter="all" aria-pressed="true">All</button>
+          {
+            categories.map((c) => (
+              <button class="chip" type="button" data-filter={c.slug} aria-pressed="false">
+                {c.label}
+              </button>
+            ))
+          }
+        </div>
+
+        <ul class="shop__grid">
+          {
+            products.map((product) => (
+              <li class="shop__item" data-category={product.data.category}>
+                <ProductCard product={product} />
+              </li>
+            ))
+          }
+        </ul>
+
+        <p class="shop__empty" hidden>No pieces in this collection just yet.</p>
+      </div>
+    </section>
+  </main>
+</Base>
+
+<style>
+  .shop-head {
+    padding-top: clamp(3rem, 7vw, 5rem);
+    padding-bottom: clamp(1.5rem, 3vw, 2.5rem);
+    background: linear-gradient(180deg, var(--color-surface-green), var(--color-bg));
+    border-bottom: 1px solid var(--color-line);
+  }
+  .shop-head__title {
+    font-size: clamp(2.4rem, 1.5rem + 3.5vw, 3.6rem);
+    margin: 0.8rem 0 1rem;
+  }
+  .shop {
+    padding-top: clamp(2.5rem, 5vw, 3.5rem);
+  }
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: clamp(2rem, 4vw, 3rem);
+  }
+  .chip {
+    padding: 0.6rem 1.15rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--color-line);
+    background: var(--color-bg);
+    color: var(--color-text-strong);
+    font-size: 0.92rem;
+    cursor: pointer;
+    transition: background-color 0.2s var(--ease), border-color 0.2s var(--ease), color 0.2s var(--ease);
+  }
+  .chip:hover {
+    border-color: var(--color-accent);
+    color: var(--color-accent-deep);
+  }
+  .chip[aria-pressed='true'] {
+    background: var(--color-accent-strong);
+    border-color: var(--color-accent-strong);
+    color: var(--color-on-accent);
+  }
+  .shop__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: clamp(1.25rem, 2.5vw, 1.75rem);
+  }
+  .shop__item[hidden] {
+    display: none;
+  }
+  .shop__empty {
+    margin-top: 2rem;
+    color: var(--color-muted);
+  }
+</style>
+
+<script>
+  const chips = Array.from(document.querySelectorAll<HTMLButtonElement>('.chip'));
+  const items = Array.from(document.querySelectorAll<HTMLElement>('.shop__item'));
+  const empty = document.querySelector<HTMLElement>('.shop__empty');
+
+  function apply(filter: string) {
+    let visible = 0;
+    for (const el of items) {
+      const show = filter === 'all' || el.dataset.category === filter;
+      el.toggleAttribute('hidden', !show);
+      if (show) visible += 1;
+    }
+    for (const chip of chips) {
+      chip.setAttribute('aria-pressed', String(chip.dataset.filter === filter));
+    }
+    if (empty) empty.toggleAttribute('hidden', visible !== 0);
+  }
+
+  for (const chip of chips) {
+    chip.addEventListener('click', () => {
+      const filter = chip.dataset.filter ?? 'all';
+      apply(filter);
+      const base = import.meta.env.BASE_URL;
+      history.replaceState(null, '', filter === 'all' ? `${base}shop` : `${base}shop#${filter}`);
+    });
+  }
+
+  const initial = location.hash.replace('#', '');
+  const isValid = chips.some((chip) => chip.dataset.filter === initial);
+  apply(isValid ? initial : 'all');
+</script>

@@ -1,0 +1,34 @@
+// =============================================================
+//  Fernly · Colour palette
+// -------------------------------------------------------------
+//  This is the SINGLE SOURCE OF TRUTH for colour.
+//  Polish values here, then they flow into the site via the
+//  CSS custom properties defined in `global.scss`.
+//
+//  Direction: light + airy, mostly-white, soft sage-green accents.
+// =============================================================
+
+// --- Greens (soft sage  ->  deep evergreen) ------------------
+$green-50:  #f2f8f3; // faintest wash / section tint
+$green-100: #e6f1e8;
+$green-200: #cfe4d3;
+$green-300: #aed3b5; // light accent (graphics, highlights)
+$green-400: #87ba91;
+$green-500: #5f9d6c; // primary green (buttons, links)
+$green-600: #4a7e56;
+$green-700: #386043; // deep green (accent text on light)
+$green-800: #294833; // darkest green
+
+// --- Neutrals (warm, paper-like) -----------------------------
+$white:   #ffffff;
+$paper:   #fbfcfb; // page background tint
+$mist:    #f4f6f4; // soft neutral surface
+$ink-900: #181d19; // headings / near-black
+$ink-700: #333a34; // strong body text
+$ink-600: #4c544d;
+$ink-500: #69716a; // default body text
+$ink-400: #8b938c; // muted / captions
+$line:    #e6ebe7; // hairline borders & dividers
+
+// --- Support (use sparingly) ---------------------------------
+$sand:    #efe9dc; // warm neutral for occasional contrast

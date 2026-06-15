@@ -1,0 +1,101 @@
+---
+import { site } from '../site.config';
+const { testimonials } = site;
+---
+
+<section class="reviews section" id="reviews">
+  <div class="container">
+    <div class="section-head reviews__head">
+      <p class="eyebrow">Loved by families</p>
+      <h2 class="section-title">Worn hard. Reviewed kindly.</h2>
+    </div>
+
+    <ul class="reviews__grid">
+      {
+        testimonials.map((t) => (
+          <li class="quote">
+            <p class="quote__text">{t.quote}</p>
+            <footer class="quote__by">
+              <span class="quote__avatar" aria-hidden="true">{t.author.charAt(0)}</span>
+              <span>
+                <span class="quote__author">{t.author}</span>
+                <span class="quote__detail">{t.detail}</span>
+              </span>
+            </footer>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .reviews {
+    border-top: 1px solid var(--color-line);
+  }
+  .reviews__grid {
+    display: grid;
+    gap: clamp(1.25rem, 2.5vw, 1.75rem);
+    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+  }
+  .quote {
+    position: relative;
+    background: var(--color-bg);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+    padding: 2rem 1.75rem 1.5rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .quote::before {
+    content: '\201C';
+    position: absolute;
+    top: 0.35rem;
+    left: 1.25rem;
+    font-family: var(--font-display);
+    font-size: 3.4rem;
+    line-height: 1;
+    color: var(--color-accent);
+  }
+  .quote__text {
+    position: relative;
+    font-family: var(--font-display);
+    font-size: 1.18rem;
+    line-height: 1.5;
+    color: var(--color-text-strong);
+    margin-bottom: 1.5rem;
+    padding-top: 1.2rem;
+  }
+  .quote__by {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-line);
+  }
+  .quote__avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--color-surface-green);
+    color: var(--color-accent-deep);
+    font-weight: var(--weight-semibold);
+  }
+  .quote__author {
+    display: block;
+    font-weight: var(--weight-medium);
+    color: var(--color-heading);
+  }
+  .quote__detail {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--color-muted);
+  }
+  @media (min-width: 820px) {
+    .reviews__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>
