@@ -15,6 +15,29 @@ import Logo from './Logo.astro';
     </nav>
 
     <a class="btn btn--primary nav__cta" href={withBase(site.ctaHref)}>{site.ctaLabel}</a>
+
+    <button
+      class="nav__toggle"
+      type="button"
+      aria-label="Open menu"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+    >
+      <span class="nav__toggle-box" aria-hidden="true">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </span>
+    </button>
+  </div>
+
+  <div class="nav__mobile" id="mobile-menu" hidden>
+    <div class="container nav__mobile-inner">
+      <nav class="nav__mobile-links" aria-label="Mobile">
+        {site.nav.map((link) => <a href={withBase(link.href)}>{link.label}</a>)}
+      </nav>
+      <a class="btn btn--primary nav__mobile-cta" href={withBase(site.ctaHref)}>{site.ctaLabel}</a>
+    </div>
   </div>
 </header>
 
@@ -76,6 +99,84 @@ import Logo from './Logo.astro';
   .nav__cta {
     display: none;
   }
+
+  /* Mobile menu toggle (hamburger) */
+  .nav__toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--color-line);
+    border-radius: 12px;
+    background: var(--color-bg);
+    cursor: pointer;
+  }
+  .nav__toggle-box {
+    position: relative;
+    width: 20px;
+    height: 14px;
+  }
+  .bar {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--color-heading);
+    transition: transform 0.25s var(--ease), opacity 0.2s var(--ease), top 0.25s var(--ease);
+  }
+  .bar:nth-child(1) { top: 0; }
+  .bar:nth-child(2) { top: 6px; }
+  .bar:nth-child(3) { top: 12px; }
+  .nav__toggle[aria-expanded='true'] .bar:nth-child(1) { top: 6px; transform: rotate(45deg); }
+  .nav__toggle[aria-expanded='true'] .bar:nth-child(2) { opacity: 0; }
+  .nav__toggle[aria-expanded='true'] .bar:nth-child(3) { top: 6px; transform: rotate(-45deg); }
+
+  /* Mobile dropdown panel */
+  .nav__mobile {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--color-bg);
+    border-top: 1px solid var(--color-line);
+    border-bottom: 1px solid var(--color-line);
+    box-shadow: var(--shadow-md);
+    animation: navIn 0.2s var(--ease);
+  }
+  .nav__mobile-inner {
+    padding-block: 0.25rem 1.5rem;
+  }
+  .nav__mobile-links {
+    display: flex;
+    flex-direction: column;
+  }
+  .nav__mobile-links a {
+    padding: 0.95rem 0;
+    font-size: 1.05rem;
+    color: var(--color-text-strong);
+    border-bottom: 1px solid var(--color-line);
+    transition: color 0.2s var(--ease);
+  }
+  .nav__mobile-links a:hover {
+    color: var(--color-accent-deep);
+  }
+  .nav__mobile-cta {
+    margin-top: 1.25rem;
+    width: 100%;
+  }
+  @keyframes navIn {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
   @media (min-width: 900px) {
     .nav__links {
       display: inline-flex;
@@ -83,5 +184,38 @@ import Logo from './Logo.astro';
     .nav__cta {
       display: inline-flex;
     }
+    .nav__toggle {
+      display: none;
+    }
+    .nav__mobile {
+      display: none !important;
+    }
   }
 </style>
+
+<script>
+  const toggle = document.querySelector('.nav__toggle');
+  const menu = document.getElementById('mobile-menu');
+
+  if (toggle && menu) {
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      menu.toggleAttribute('hidden', !open);
+    };
+
+    toggle.addEventListener('click', () => setOpen(menu.hasAttribute('hidden')));
+
+    for (const link of menu.querySelectorAll('a')) {
+      link.addEventListener('click', () => setOpen(false));
+    }
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') setOpen(false);
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 900) setOpen(false);
+    });
+  }
+</script>
