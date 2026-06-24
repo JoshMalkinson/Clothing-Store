@@ -28,6 +28,9 @@ jobs:
         # Installs dependencies, runs `astro build`, and uploads the
         # ./dist folder as a Pages artifact. Reads `base` from astro.config.
         uses: withastro/action@v3
+        env:
+          PUBLIC_SUPABASE_URL: https://wximwpynlykkdlotnjnx.supabase.co
+          PUBLIC_SUPABASE_ANON_KEY: ${{ vars.PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4aW13cHlubHlra2Rsb3Ruam54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzMTM5MjYsImV4cCI6MjA5Nzg4OTkyNn0.ikiV9unk76MoXNt0Vj_LCVx_gvM39X5JtlHcffOCno4' }}
 
   deploy:
     needs: build

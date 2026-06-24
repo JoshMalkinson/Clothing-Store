@@ -1,7 +1,7 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 import { formatPrice, categoryLabel, colorHex } from '../lib/catalog';
-import { withBase } from '../lib/url';
+import { productUrl } from '../lib/runtime-products';
 
 interface Props {
   product: CollectionEntry<'products'>;
@@ -11,7 +11,7 @@ const { product } = Astro.props;
 const { data, id } = product;
 ---
 
-<a class="pcard" href={withBase(`/products/${id}`)} data-category={data.category}>
+<a class="pcard" href={productUrl(id)} data-category={data.category}>
   <div class="pcard__media">
     {data.tag && <span class="pcard__tag">{data.tag}</span>}
     <span class="pcard__cat">{categoryLabel(data.category)}</span>

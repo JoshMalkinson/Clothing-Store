@@ -1,0 +1,419 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../site.config';
+import { withBase } from '../lib/url';
+---
+
+<Base
+  title={`Product — ${site.brand}`}
+  description={`Product details from the ${site.brand} activewear range.`}
+>
+  <main class="pdp">
+    <div class="container">
+      <a class="pdp__back" href={withBase('/shop')}>&larr; Back to shop</a>
+      <p class="pdp__status" data-status>Loading product...</p>
+
+      <div class="pdp__top" data-product hidden>
+        <div class="pdp__media" data-media>
+          <span class="pdp__media-note" data-media-note>Add a product photo</span>
+        </div>
+
+        <div class="pdp__info">
+          <p class="eyebrow" data-category></p>
+          <h1 class="pdp__name" data-name></h1>
+          <p class="pdp__price" data-price></p>
+          <p class="pdp__summary" data-summary></p>
+
+          <div class="pdp__block">
+            <h2 class="pdp__label">Colours</h2>
+            <ul class="pdp__colors" data-colors></ul>
+          </div>
+
+          <div class="pdp__block">
+            <h2 class="pdp__label">Sizes</h2>
+            <ul class="pdp__sizes" data-sizes></ul>
+          </div>
+
+          <div class="pdp__actions">
+            <button class="btn btn--primary" type="button" disabled>Add to bag</button>
+            <p class="pdp__note">Online checkout isn&rsquo;t wired up yet. This is a demo storefront.</p>
+          </div>
+
+          <div class="pdp__desc" data-description></div>
+        </div>
+      </div>
+
+      <section class="pdp__related" data-related-section hidden>
+        <h2 class="section-title" data-related-title>More from this collection</h2>
+        <ul class="pdp__related-grid" data-related></ul>
+      </section>
+    </div>
+  </main>
+</Base>
+
+<style>
+  .pdp {
+    padding-block: clamp(2rem, 5vw, 3.5rem) clamp(4rem, 8vw, 7rem);
+  }
+  .pdp__back {
+    display: inline-block;
+    margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+    font-size: 0.92rem;
+    color: var(--color-text-strong);
+    transition: color 0.2s var(--ease);
+  }
+  .pdp__back:hover {
+    color: var(--color-accent-deep);
+  }
+  .pdp__status {
+    color: var(--color-muted);
+  }
+  .pdp__status:empty {
+    display: none;
+  }
+  .pdp__top {
+    display: grid;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+  }
+  .pdp__media {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-line);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(120% 90% at 80% 10%, var(--color-accent-soft), transparent 55%),
+      linear-gradient(160deg, var(--color-surface-green), var(--color-bg));
+  }
+  .pdp__media[data-category='cooler-days'] {
+    background: linear-gradient(160deg, var(--color-accent-soft), var(--color-surface));
+  }
+  .pdp__media[data-category='rest-recover'] {
+    background: linear-gradient(160deg, var(--color-surface-green), var(--color-accent-soft));
+  }
+  .pdp__media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .pdp__media-note {
+    font-size: 0.85rem;
+    color: var(--color-muted);
+  }
+  .pdp__tag {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1;
+    background: var(--color-bg);
+    color: var(--color-accent-deep);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-pill);
+    padding: 0.3rem 0.8rem;
+    font-size: 0.74rem;
+    font-weight: var(--weight-semibold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .pdp__name {
+    font-size: clamp(2rem, 1.2rem + 2.5vw, 3rem);
+    margin: 0.6rem 0 0.4rem;
+  }
+  .pdp__price {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--color-accent-deep);
+  }
+  .pdp__summary {
+    margin-top: 1rem;
+    color: var(--color-text);
+    max-width: 46ch;
+  }
+  .pdp__block {
+    margin-top: 1.75rem;
+  }
+  .pdp__label {
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    font-weight: var(--weight-semibold);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-bottom: 0.75rem;
+  }
+  .pdp__colors {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .pdp__colors li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.92rem;
+    color: var(--color-text-strong);
+  }
+  .swatch {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--swatch);
+    box-shadow: inset 0 0 0 1px rgba(24, 29, 25, 0.12);
+  }
+  .pdp__sizes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+  }
+  .pdp__sizes li {
+    padding: 0.5rem 0.9rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    color: var(--color-text-strong);
+  }
+  .pdp__actions {
+    margin-top: 2rem;
+  }
+  .btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .pdp__note {
+    margin-top: 0.75rem;
+    font-size: 0.82rem;
+    color: var(--color-muted);
+  }
+  .pdp__desc {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-line);
+    color: var(--color-text);
+    line-height: 1.7;
+    max-width: 52ch;
+  }
+  .pdp__desc p + p {
+    margin-top: 1rem;
+  }
+  .pdp__related {
+    margin-top: clamp(3.5rem, 7vw, 6rem);
+    padding-top: clamp(2.5rem, 5vw, 3.5rem);
+    border-top: 1px solid var(--color-line);
+  }
+  .pdp__related-grid {
+    display: grid;
+    gap: clamp(1.25rem, 2.5vw, 1.75rem);
+    margin-top: 2rem;
+  }
+  .pcard {
+    display: flex;
+    flex-direction: column;
+    background: var(--color-bg);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    height: 100%;
+  }
+  .pcard__media {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    background: linear-gradient(160deg, var(--color-surface-green), var(--color-bg));
+  }
+  .pcard__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .pcard__body {
+    padding: 1.25rem;
+  }
+  .pcard__name {
+    font-size: 1.15rem;
+  }
+  .pcard__price {
+    display: block;
+    margin-top: 0.6rem;
+    font-family: var(--font-display);
+    color: var(--color-heading);
+  }
+  @media (min-width: 760px) {
+    .pdp__top {
+      grid-template-columns: 1fr 1fr;
+    }
+    .pdp__related-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  @media (min-width: 1040px) {
+    .pdp__top {
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 4.5rem;
+    }
+  }
+</style>
+
+<script>
+  import {
+    categoryLabel,
+    colorHex,
+    formatPrice,
+    getProductBySlug,
+    hasSupabaseConfig,
+    listRelatedProducts,
+    productUrl,
+    type RuntimeProduct,
+  } from '../lib/runtime-products';
+
+  const status = document.querySelector<HTMLElement>('[data-status]');
+  const shell = document.querySelector<HTMLElement>('[data-product]');
+  const media = document.querySelector<HTMLElement>('[data-media]');
+  const mediaNote = document.querySelector<HTMLElement>('[data-media-note]');
+  const category = document.querySelector<HTMLElement>('[data-category]');
+  const name = document.querySelector<HTMLElement>('[data-name]');
+  const price = document.querySelector<HTMLElement>('[data-price]');
+  const summary = document.querySelector<HTMLElement>('[data-summary]');
+  const colors = document.querySelector<HTMLUListElement>('[data-colors]');
+  const sizes = document.querySelector<HTMLUListElement>('[data-sizes]');
+  const description = document.querySelector<HTMLElement>('[data-description]');
+  const relatedSection = document.querySelector<HTMLElement>('[data-related-section]');
+  const relatedTitle = document.querySelector<HTMLElement>('[data-related-title]');
+  const relatedGrid = document.querySelector<HTMLUListElement>('[data-related]');
+
+  function setStatus(message = '') {
+    if (status) status.textContent = message;
+  }
+
+  function text(el: HTMLElement | null, value: string) {
+    if (el) el.textContent = value;
+  }
+
+  function renderList(list: HTMLUListElement | null, values: string[], render: (value: string) => HTMLElement) {
+    if (!list) return;
+    list.replaceChildren(...values.map(render));
+  }
+
+  function renderProduct(product: RuntimeProduct) {
+    media?.setAttribute('data-category', product.category);
+    if (product.tag && media) {
+      const tag = document.createElement('span');
+      tag.className = 'pdp__tag';
+      tag.textContent = product.tag;
+      media.prepend(tag);
+    }
+    if (product.image_url && media) {
+      const image = document.createElement('img');
+      image.src = product.image_url;
+      image.alt = product.name;
+      media.append(image);
+      mediaNote?.remove();
+    }
+
+    text(category, categoryLabel(product.category));
+    text(name, product.name);
+    text(price, formatPrice(product.price));
+    text(summary, product.summary);
+
+    renderList(colors, product.colors, (color) => {
+      const item = document.createElement('li');
+      const swatch = document.createElement('span');
+      swatch.className = 'swatch';
+      swatch.style.setProperty('--swatch', colorHex(color));
+      item.append(swatch, document.createTextNode(color));
+      return item;
+    });
+
+    renderList(sizes, product.sizes, (size) => {
+      const item = document.createElement('li');
+      item.textContent = size;
+      return item;
+    });
+
+    if (description) {
+      const paragraphs = product.description.split(/\n+/).map((p) => p.trim()).filter(Boolean);
+      description.replaceChildren(
+        ...paragraphs.map((paragraph) => {
+          const p = document.createElement('p');
+          p.textContent = paragraph;
+          return p;
+        }),
+      );
+    }
+
+    shell?.removeAttribute('hidden');
+  }
+
+  function relatedCard(product: RuntimeProduct) {
+    const item = document.createElement('li');
+    const link = document.createElement('a');
+    link.className = 'pcard';
+    link.href = productUrl(product.slug);
+
+    const mediaBox = document.createElement('div');
+    mediaBox.className = 'pcard__media';
+    if (product.image_url) {
+      const image = document.createElement('img');
+      image.className = 'pcard__img';
+      image.src = product.image_url;
+      image.alt = product.name;
+      mediaBox.append(image);
+    }
+
+    const body = document.createElement('div');
+    body.className = 'pcard__body';
+    const title = document.createElement('h3');
+    title.className = 'pcard__name';
+    title.textContent = product.name;
+    const cost = document.createElement('span');
+    cost.className = 'pcard__price';
+    cost.textContent = formatPrice(product.price);
+    body.append(title, cost);
+    link.append(mediaBox, body);
+    item.append(link);
+    return item;
+  }
+
+  async function init() {
+    if (!hasSupabaseConfig()) {
+      setStatus('Supabase is not configured yet. Add PUBLIC_SUPABASE_URL and PUBLIC_SUPABASE_ANON_KEY to enable live product pages.');
+      return;
+    }
+
+    const slug = new URLSearchParams(location.search).get('slug');
+    if (!slug) {
+      setStatus('No product was selected. Return to the shop and choose a piece.');
+      return;
+    }
+
+    try {
+      const product = await getProductBySlug(slug);
+      if (!product) {
+        setStatus('That product could not be found.');
+        return;
+      }
+
+      setStatus('');
+      renderProduct(product);
+
+      const related = await listRelatedProducts(product);
+      if (related.length && relatedGrid) {
+        relatedTitle && (relatedTitle.textContent = `More from ${categoryLabel(product.category)}`);
+        relatedGrid.replaceChildren(...related.map(relatedCard));
+        relatedSection?.removeAttribute('hidden');
+      }
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : 'Unable to load this product right now.');
+    }
+  }
+
+  init();
+</script>
+

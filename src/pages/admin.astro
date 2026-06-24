@@ -1,0 +1,662 @@
+---
+import Base from '../layouts/Base.astro';
+import { runtimeCategories } from '../lib/runtime-products';
+import { site } from '../site.config';
+---
+
+<Base title={`Admin — ${site.brand}`} description={`Product administration for ${site.brand}.`}>
+  <main class="admin">
+    <div class="container admin__inner">
+      <section class="admin__head">
+        <p class="eyebrow">Admin</p>
+        <h1 class="admin__title">Product manager</h1>
+        <p class="admin__lede">Create live catalogue products without rebuilding the site.</p>
+      </section>
+
+      <p class="admin__status" data-global-status></p>
+
+      <section class="admin__panel admin__panel--notice" data-preview-panel hidden>
+        <h2>Preview mode</h2>
+        <p>
+          Supabase is not connected yet, so products created here are saved only in this
+          browser for testing the form. Once Supabase is configured, sign in to publish
+          products live.
+        </p>
+      </section>
+
+      <section class="admin__panel" data-login-panel>
+        <h2>Sign in</h2>
+        <form class="admin__form" data-login-form>
+          <label>
+            <span>Email</span>
+            <input type="email" name="email" autocomplete="email" required />
+          </label>
+          <label>
+            <span>Password</span>
+            <input type="password" name="password" autocomplete="current-password" required />
+          </label>
+          <button class="btn btn--primary" type="submit">Sign in</button>
+        </form>
+      </section>
+
+      <section class="admin__panel" data-editor-panel hidden>
+        <div class="admin__bar">
+          <div>
+            <h2>Add product</h2>
+            <p data-session-label></p>
+          </div>
+          <button class="btn btn--ghost" type="button" data-sign-out>Sign out</button>
+        </div>
+
+        <form class="admin__form admin__form--grid" data-product-form>
+          <label>
+            <span>Name</span>
+            <input type="text" name="name" required />
+          </label>
+
+          <label>
+            <span>Slug</span>
+            <input type="text" name="slug" required />
+          </label>
+
+          <label>
+            <span>Category</span>
+            <select name="category" required>
+              {
+                runtimeCategories.map((category) => (
+                  <option value={category.slug}>{category.label}</option>
+                ))
+              }
+            </select>
+          </label>
+
+          <label>
+            <span>Price (ZAR)</span>
+            <input type="number" name="price" min="0" step="1" required />
+          </label>
+
+          <label>
+            <span>Sizes</span>
+            <input type="text" name="sizes" placeholder="4-5y, 6-7y, 8-9y" required />
+          </label>
+
+          <label>
+            <span>Colours</span>
+            <input type="text" name="colors" placeholder="Sage, Chalk, Slate" required />
+          </label>
+
+          <label>
+            <span>Tag</span>
+            <input type="text" name="tag" placeholder="New, Bestseller" />
+          </label>
+
+          <label>
+            <span>Sort order</span>
+            <input type="number" name="sort_order" min="0" step="1" value="99" required />
+          </label>
+
+          <label class="admin__wide">
+            <span>Summary</span>
+            <input type="text" name="summary" maxlength="180" required />
+          </label>
+
+          <label class="admin__wide">
+            <span>Description</span>
+            <textarea name="description" rows="6" required></textarea>
+          </label>
+
+          <label class="admin__wide">
+            <span>Product image</span>
+            <input type="file" name="image" accept="image/*" />
+          </label>
+
+          <div class="admin__checks admin__wide">
+            <label>
+              <input type="checkbox" name="featured" />
+              <span>Featured product</span>
+            </label>
+            <label>
+              <input type="checkbox" name="published" checked />
+              <span>Published</span>
+            </label>
+          </div>
+
+          <div class="admin__actions admin__wide">
+            <button class="btn btn--primary" type="submit">Create product</button>
+            <p data-form-status></p>
+          </div>
+        </form>
+
+        <div class="admin__preview-list admin__wide" data-preview-list hidden>
+          <h3>Local preview products</h3>
+          <ul data-preview-products></ul>
+        </div>
+      </section>
+
+      <section class="admin__panel" data-products-panel hidden>
+        <div class="admin__bar">
+          <div>
+            <h2>Current products</h2>
+            <p data-products-status>Loading products...</p>
+          </div>
+          <button class="btn btn--ghost" type="button" data-refresh-products>Refresh</button>
+        </div>
+
+        <div class="admin__table-wrap">
+          <table class="admin__table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Featured</th>
+                <th>Published</th>
+                <th>Order</th>
+                <th>View</th>
+              </tr>
+            </thead>
+            <tbody data-products-table></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+</Base>
+
+<style>
+  .admin {
+    min-height: 70vh;
+    padding-block: clamp(3rem, 7vw, 5rem) clamp(4rem, 8vw, 7rem);
+    background: linear-gradient(180deg, var(--color-surface-green), var(--color-bg) 18rem);
+  }
+  .admin__inner {
+    max-width: 980px;
+  }
+  .admin__title {
+    font-size: clamp(2.2rem, 1.5rem + 3vw, 3.4rem);
+    margin-top: 0.8rem;
+  }
+  .admin__lede {
+    margin-top: 1rem;
+    color: var(--color-text);
+  }
+  .admin__status {
+    margin-block: 1.5rem;
+    color: var(--color-muted);
+  }
+  .admin__status:empty {
+    display: none;
+  }
+  .admin__panel {
+    margin-top: 2rem;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius);
+    background: var(--color-bg);
+    box-shadow: var(--shadow-md);
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+  }
+  .admin__panel h2 {
+    font-size: 1.6rem;
+    margin-bottom: 1.25rem;
+  }
+  .admin__panel--notice {
+    box-shadow: var(--shadow-sm);
+    background: var(--color-surface-green);
+  }
+  .admin__panel--notice p {
+    color: var(--color-text-strong);
+  }
+  .admin__bar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .admin__bar p,
+  .admin__actions p {
+    color: var(--color-muted);
+    font-size: 0.9rem;
+  }
+  .admin__form {
+    display: grid;
+    gap: 1rem;
+  }
+  .admin__form--grid {
+    grid-template-columns: 1fr;
+  }
+  .admin__wide {
+    grid-column: 1 / -1;
+  }
+  .admin__form label {
+    display: grid;
+    gap: 0.4rem;
+    color: var(--color-text-strong);
+    font-size: 0.92rem;
+  }
+  .admin__form input,
+  .admin__form select,
+  .admin__form textarea {
+    width: 100%;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    padding: 0.8rem 0.9rem;
+    outline: none;
+  }
+  .admin__form textarea {
+    resize: vertical;
+  }
+  .admin__form input:focus-visible,
+  .admin__form select:focus-visible,
+  .admin__form textarea:focus-visible {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 4px var(--color-accent-soft);
+  }
+  .admin__checks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+  }
+  .admin__checks label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .admin__checks input {
+    width: auto;
+  }
+  .admin__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+  }
+  .admin__preview-list {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-line);
+  }
+  .admin__preview-list h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.8rem;
+  }
+  .admin__preview-list li {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.4rem 1rem;
+    padding-block: 0.7rem;
+    border-bottom: 1px solid var(--color-line);
+    color: var(--color-text-strong);
+  }
+  .admin__preview-list span {
+    color: var(--color-muted);
+    font-size: 0.9rem;
+  }
+  .admin__table-wrap {
+    overflow-x: auto;
+  }
+  .admin__table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 720px;
+  }
+  .admin__table th,
+  .admin__table td {
+    padding: 0.8rem 0.75rem;
+    border-bottom: 1px solid var(--color-line);
+    text-align: left;
+    vertical-align: top;
+  }
+  .admin__table th {
+    font-size: 0.74rem;
+    font-weight: var(--weight-semibold);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .admin__table td {
+    font-size: 0.92rem;
+    color: var(--color-text-strong);
+  }
+  .admin__table small {
+    display: block;
+    margin-top: 0.1rem;
+    color: var(--color-muted);
+    font-size: 0.78rem;
+  }
+  .admin__pill {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-pill);
+    padding: 0.15rem 0.55rem;
+    font-size: 0.78rem;
+    color: var(--color-text-strong);
+    background: var(--color-bg-soft);
+  }
+  .admin__table a {
+    color: var(--color-accent-deep);
+    font-weight: var(--weight-medium);
+  }
+  @media (min-width: 720px) {
+    .admin__form--grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>
+
+<script>
+  import {
+    createProduct,
+    hasSupabaseConfig,
+    listAdminProducts,
+    signInWithPassword,
+    slugify,
+    uploadProductImage,
+    type CategorySlug,
+    type RuntimeProduct,
+    type SupabaseSession,
+    categoryLabel,
+    formatPrice,
+    productUrl,
+  } from '../lib/runtime-products';
+
+  const sessionKey = 'action-bodywear-admin-session';
+  const previewKey = 'action-bodywear-preview-products';
+  const loginPanel = document.querySelector<HTMLElement>('[data-login-panel]');
+  const editorPanel = document.querySelector<HTMLElement>('[data-editor-panel]');
+  const productsPanel = document.querySelector<HTMLElement>('[data-products-panel]');
+  const productsStatus = document.querySelector<HTMLElement>('[data-products-status]');
+  const productsTable = document.querySelector<HTMLTableSectionElement>('[data-products-table]');
+  const refreshProducts = document.querySelector<HTMLButtonElement>('[data-refresh-products]');
+  const previewPanel = document.querySelector<HTMLElement>('[data-preview-panel]');
+  const previewList = document.querySelector<HTMLElement>('[data-preview-list]');
+  const previewProducts = document.querySelector<HTMLUListElement>('[data-preview-products]');
+  const loginForm = document.querySelector<HTMLFormElement>('[data-login-form]');
+  const productForm = document.querySelector<HTMLFormElement>('[data-product-form]');
+  const globalStatus = document.querySelector<HTMLElement>('[data-global-status]');
+  const formStatus = document.querySelector<HTMLElement>('[data-form-status]');
+  const sessionLabel = document.querySelector<HTMLElement>('[data-session-label]');
+  const signOut = document.querySelector<HTMLButtonElement>('[data-sign-out]');
+  const nameInput = productForm?.elements.namedItem('name') as HTMLInputElement | null;
+  const slugInput = productForm?.elements.namedItem('slug') as HTMLInputElement | null;
+  let slugWasEdited = false;
+  let session: SupabaseSession | null = loadSession();
+
+  function setText(el: HTMLElement | null, message = '') {
+    if (el) el.textContent = message;
+  }
+
+  function loadSession(): SupabaseSession | null {
+    const raw = localStorage.getItem(sessionKey);
+    if (!raw) return null;
+    try {
+      const parsed = JSON.parse(raw) as SupabaseSession;
+      if (!parsed.access_token) return null;
+      return parsed;
+    } catch {
+      return null;
+    }
+  }
+
+  function saveSession(value: SupabaseSession | null) {
+    session = value;
+    if (value) localStorage.setItem(sessionKey, JSON.stringify(value));
+    else localStorage.removeItem(sessionKey);
+    renderAuthState();
+  }
+
+  function renderAuthState() {
+    const ready = hasSupabaseConfig();
+    if (!ready) {
+      setText(globalStatus, 'Local preview mode is active.');
+    } else if (!session) {
+      setText(globalStatus, 'Sign in to publish products live.');
+    } else {
+      setText(globalStatus, '');
+    }
+
+    previewPanel?.toggleAttribute('hidden', ready);
+    loginPanel?.toggleAttribute('hidden', Boolean(session) || !ready);
+    editorPanel?.toggleAttribute('hidden', ready ? !session : false);
+    productsPanel?.toggleAttribute('hidden', ready ? !session : false);
+    setText(
+      sessionLabel,
+      ready
+        ? session?.user?.email
+          ? `Signed in as ${session.user.email}`
+          : ''
+        : 'Preview only. Connect Supabase to publish live.',
+    );
+    renderPreviewProducts();
+    if (ready && session) void loadProductsTable();
+    if (!ready) renderPreviewProductsTable();
+  }
+
+  function csv(value: FormDataEntryValue | null): string[] {
+    return String(value ?? '')
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  function loadPreviewProducts(): Array<{ name: string; slug: string; category: string; price: number }> {
+    const raw = localStorage.getItem(previewKey);
+    if (!raw) return [];
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function savePreviewProduct(product: { name: string; slug: string; category: string; price: number }) {
+    const products = [product, ...loadPreviewProducts()].slice(0, 8);
+    localStorage.setItem(previewKey, JSON.stringify(products));
+    renderPreviewProducts();
+  }
+
+  function renderPreviewProducts() {
+    if (!previewList || !previewProducts || hasSupabaseConfig()) return;
+    const products = loadPreviewProducts();
+    previewList.toggleAttribute('hidden', products.length === 0);
+    previewProducts.replaceChildren(
+      ...products.map((product) => {
+        const item = document.createElement('li');
+        const strong = document.createElement('strong');
+        strong.textContent = product.name;
+        const meta = document.createElement('span');
+        meta.textContent = `${product.slug} · ${product.category} · R${product.price}`;
+        item.append(strong, meta);
+        return item;
+      }),
+    );
+  }
+
+  function renderPreviewProductsTable() {
+    if (!productsTable || !productsPanel) return;
+    const products = loadPreviewProducts();
+    productsPanel.toggleAttribute('hidden', false);
+    setText(productsStatus, products.length ? `${products.length} local preview product${products.length === 1 ? '' : 's'}.` : 'No local preview products yet.');
+    productsTable.replaceChildren(
+      ...products.map((product) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><strong></strong><small></small></td>
+          <td></td>
+          <td></td>
+          <td><span class="admin__pill">No</span></td>
+          <td><span class="admin__pill">Preview</span></td>
+          <td>-</td>
+          <td>-</td>
+        `;
+        row.querySelector('strong')!.textContent = product.name;
+        row.querySelector('small')!.textContent = product.slug;
+        row.children[1].textContent = product.category;
+        row.children[2].textContent = `R${product.price}`;
+        return row;
+      }),
+    );
+  }
+
+  function renderProductsTable(products: RuntimeProduct[]) {
+    if (!productsTable) return;
+    productsTable.replaceChildren(
+      ...products.map((product) => {
+        const row = document.createElement('tr');
+        const view = product.published ? `<a href="${productUrl(product.slug)}">View</a>` : '<span class="admin__pill">Hidden</span>';
+        row.innerHTML = `
+          <td><strong></strong><small></small></td>
+          <td></td>
+          <td></td>
+          <td><span class="admin__pill"></span></td>
+          <td><span class="admin__pill"></span></td>
+          <td></td>
+          <td>${view}</td>
+        `;
+        row.querySelector('strong')!.textContent = product.name;
+        row.querySelector('small')!.textContent = product.slug;
+        row.children[1].textContent = categoryLabel(product.category);
+        row.children[2].textContent = formatPrice(product.price);
+        row.children[3].querySelector('span')!.textContent = product.featured ? 'Yes' : 'No';
+        row.children[4].querySelector('span')!.textContent = product.published ? 'Yes' : 'No';
+        row.children[5].textContent = String(product.sort_order);
+        return row;
+      }),
+    );
+  }
+
+  async function loadProductsTable() {
+    if (!session || !hasSupabaseConfig()) {
+      renderPreviewProductsTable();
+      return;
+    }
+
+    setText(productsStatus, 'Loading products...');
+    try {
+      const products = await listAdminProducts(session.access_token);
+      renderProductsTable(products);
+      setText(productsStatus, `${products.length} product${products.length === 1 ? '' : 's'} loaded.`);
+    } catch (error) {
+      setText(productsStatus, error instanceof Error ? error.message : 'Unable to load products.');
+    }
+  }
+
+  nameInput?.addEventListener('input', () => {
+    if (!slugWasEdited && slugInput) slugInput.value = slugify(nameInput.value);
+  });
+
+  slugInput?.addEventListener('input', () => {
+    slugWasEdited = true;
+    slugInput.value = slugify(slugInput.value);
+  });
+
+  loginForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const data = new FormData(loginForm);
+    const email = String(data.get('email') ?? '');
+    const password = String(data.get('password') ?? '');
+    setText(globalStatus, 'Signing in...');
+
+    try {
+      const result = await signInWithPassword(email, password);
+      saveSession(result);
+      loginForm.reset();
+      setText(globalStatus, '');
+    } catch (error) {
+      setText(globalStatus, error instanceof Error ? error.message : 'Unable to sign in.');
+    }
+  });
+
+  signOut?.addEventListener('click', () => {
+    saveSession(null);
+    setText(globalStatus, 'Signed out.');
+  });
+
+  productForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const data = new FormData(productForm);
+    const slug = slugify(String(data.get('slug') ?? data.get('name') ?? ''));
+    const sizes = csv(data.get('sizes'));
+    const colors = csv(data.get('colors'));
+    const file = data.get('image');
+
+    if (!slug || !sizes.length || !colors.length) {
+      setText(formStatus, 'Add a name, slug, at least one size, and at least one colour.');
+      return;
+    }
+
+    if (!hasSupabaseConfig()) {
+      savePreviewProduct({
+        slug,
+        name: String(data.get('name') ?? '').trim(),
+        category: String(data.get('category') ?? ''),
+        price: Number(data.get('price') ?? 0),
+      });
+      productForm.reset();
+      slugWasEdited = false;
+      const sortOrder = productForm.elements.namedItem('sort_order') as HTMLInputElement | null;
+      const published = productForm.elements.namedItem('published') as HTMLInputElement | null;
+      if (sortOrder) sortOrder.value = '99';
+      if (published) published.checked = true;
+      setText(formStatus, 'Preview product saved locally. Connect Supabase to publish live.');
+      renderPreviewProductsTable();
+      return;
+    }
+
+    if (!session) {
+      setText(formStatus, 'Sign in before publishing products live.');
+      return;
+    }
+
+    setText(formStatus, 'Creating product...');
+
+    try {
+      let imageUrl = '';
+      if (file instanceof File && file.size > 0) {
+        setText(formStatus, 'Uploading image...');
+        imageUrl = await uploadProductImage(file, slug, session.access_token);
+      }
+
+      await createProduct(
+        {
+          slug,
+          name: String(data.get('name') ?? '').trim(),
+          category: String(data.get('category')) as CategorySlug,
+          price: Number(data.get('price') ?? 0),
+          sizes,
+          colors,
+          summary: String(data.get('summary') ?? '').trim(),
+          description: String(data.get('description') ?? '').trim(),
+          tag: String(data.get('tag') ?? '').trim() || null,
+          featured: data.get('featured') === 'on',
+          sort_order: Number(data.get('sort_order') ?? 99),
+          image_url: imageUrl || null,
+          published: data.get('published') === 'on',
+        },
+        session.access_token,
+      );
+
+      productForm.reset();
+      slugWasEdited = false;
+      const sortOrder = productForm.elements.namedItem('sort_order') as HTMLInputElement | null;
+      const published = productForm.elements.namedItem('published') as HTMLInputElement | null;
+      if (sortOrder) sortOrder.value = '99';
+      if (published) published.checked = true;
+      setText(formStatus, 'Product created. It can appear on the shop page immediately.');
+      await loadProductsTable();
+    } catch (error) {
+      setText(formStatus, error instanceof Error ? error.message : 'Unable to create product.');
+    }
+  });
+
+  refreshProducts?.addEventListener('click', () => {
+    void loadProductsTable();
+  });
+
+  renderAuthState();
+</script>
