@@ -127,13 +127,13 @@ export const site = {
   ],
 
   cta: {
-    eyebrow: 'Stay in the loop',
-    title: 'Be first to see new collections.',
+    eyebrow: 'Get in touch',
+    title: 'Questions, sizing help, or team orders?',
     subtitle:
-      'Occasional updates on new arrivals and restocks. No noise — just the good stuff.',
+      'Send us a note and we will get back to you about products, availability, or anything you need before ordering.',
     placeholder: 'you@example.com',
-    button: 'Notify me',
-    note: 'We’ll only email about products. Unsubscribe anytime.',
+    button: 'Send message',
+    note: 'We will only use your details to respond to your enquiry.',
   },
 
   footer: {

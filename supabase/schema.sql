@@ -107,6 +107,43 @@ to authenticated
 using (bucket_id = 'product-images')
 with check (bucket_id = 'product-images');
 
+create table if not exists public.contact_messages (
+  id uuid primary key default gen_random_uuid(),
+  name text not null check (char_length(name) between 2 and 120),
+  email text not null check (email ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$'),
+  message text not null check (char_length(message) between 2 and 2000),
+  source text not null default 'homepage',
+  status text not null default 'new' check (status in ('new', 'read', 'archived')),
+  created_at timestamptz not null default now()
+);
+
+create index if not exists contact_messages_created_at_idx
+  on public.contact_messages (created_at desc);
+
+alter table public.contact_messages enable row level security;
+
+drop policy if exists "Anyone can create contact messages" on public.contact_messages;
+create policy "Anyone can create contact messages"
+on public.contact_messages
+for insert
+to anon, authenticated
+with check (true);
+
+drop policy if exists "Authenticated admins can read contact messages" on public.contact_messages;
+create policy "Authenticated admins can read contact messages"
+on public.contact_messages
+for select
+to authenticated
+using (true);
+
+drop policy if exists "Authenticated admins can update contact messages" on public.contact_messages;
+create policy "Authenticated admins can update contact messages"
+on public.contact_messages
+for update
+to authenticated
+using (true)
+with check (true);
+
 insert into public.products
   (slug, name, category, price, sizes, colors, summary, description, tag, featured, sort_order, published)
 values

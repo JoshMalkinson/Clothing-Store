@@ -3,7 +3,7 @@ import { site } from '../site.config';
 const { cta } = site;
 ---
 
-<section class="cta section" id="newsletter">
+<section class="cta section" id="contact">
   <div class="container">
     <div class="cta__panel">
       <div class="cta__copy">
@@ -12,18 +12,38 @@ const { cta } = site;
         <p class="cta__sub">{cta.subtitle}</p>
       </div>
 
-      <form class="cta__form" action="#" method="post" novalidate>
-        <label class="sr-only" for="cta-email">Email address</label>
-        <input
-          id="cta-email"
-          class="cta__input"
-          type="email"
-          name="email"
-          placeholder={cta.placeholder}
-          autocomplete="email"
-          required
-        />
-        <button class="btn btn--primary" type="submit">{cta.button}</button>
+      <form class="cta__form" action="#" method="post" data-contact-form>
+        <label>
+          <span>Name</span>
+          <input class="cta__input" type="text" name="name" autocomplete="name" required />
+        </label>
+
+        <label>
+          <span>Email address</span>
+          <input
+            class="cta__input"
+            type="email"
+            name="email"
+            placeholder={cta.placeholder}
+            autocomplete="email"
+            required
+          />
+        </label>
+
+        <label class="cta__wide">
+          <span>Message</span>
+          <textarea class="cta__input" name="message" rows="5" required></textarea>
+        </label>
+
+        <label class="cta__trap" aria-hidden="true">
+          <span>Website</span>
+          <input type="text" name="website" tabindex="-1" autocomplete="off" />
+        </label>
+
+        <div class="cta__actions cta__wide">
+          <button class="btn btn--primary" type="submit" data-contact-submit>{cta.button}</button>
+          <p class="cta__status" role="status" data-contact-status></p>
+        </div>
       </form>
 
       <p class="cta__note">{cta.note}</p>
@@ -53,29 +73,67 @@ const { cta } = site;
     color: var(--color-text-strong);
   }
   .cta__form {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.65rem;
+    display: grid;
+    gap: 0.85rem;
     justify-content: center;
     margin: 2rem auto 0;
-    max-width: 32rem;
+    max-width: 42rem;
+    text-align: left;
+  }
+  .cta__form label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    font-size: 0.82rem;
+    font-weight: var(--weight-medium);
+    color: var(--color-text-strong);
   }
   .cta__input {
-    flex: 1 1 16rem;
+    width: 100%;
     padding: 0.9rem 1.2rem;
-    border-radius: var(--radius-pill);
-    border: 1px solid var(--color-line);
+    border-radius: var(--radius-sm);
+    border: 2px solid color-mix(in srgb, var(--color-muted) 48%, var(--color-line));
     background: var(--color-bg);
     color: var(--color-heading);
     outline: none;
-    transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+    transition:
+      border-color 0.2s var(--ease),
+      box-shadow 0.2s var(--ease),
+      background 0.2s var(--ease);
+  }
+  textarea.cta__input {
+    resize: vertical;
+    min-height: 8rem;
   }
   .cta__input::placeholder {
     color: var(--color-muted);
   }
+  .cta__input:hover {
+    border-color: color-mix(in srgb, var(--color-accent-deep) 34%, var(--color-line));
+  }
   .cta__input:focus-visible {
-    border-color: var(--color-accent);
+    border-color: var(--color-accent-deep);
+    background: #fff;
     box-shadow: 0 0 0 4px var(--color-accent-soft);
+  }
+  .cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.85rem 1rem;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .cta__status {
+    min-height: 1.4em;
+    color: var(--color-text-strong);
+    font-size: 0.9rem;
+  }
+  .cta__trap {
+    position: absolute;
+    left: -9999px;
+    opacity: 0;
+    pointer-events: none;
   }
   .cta__note {
     margin-top: 1.1rem;
@@ -93,4 +151,63 @@ const { cta } = site;
     white-space: nowrap;
     border: 0;
   }
+  @media (min-width: 720px) {
+    .cta__form {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .cta__wide {
+      grid-column: 1 / -1;
+    }
+  }
 </style>
+
+<script>
+  import { createContactMessage, hasSupabaseConfig } from '../lib/runtime-products';
+
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+  const status = document.querySelector<HTMLElement>('[data-contact-status]');
+  const submit = document.querySelector<HTMLButtonElement>('[data-contact-submit]');
+
+  function setStatus(message = '') {
+    if (status) status.textContent = message;
+  }
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const data = new FormData(form);
+
+    if (String(data.get('website') ?? '').trim()) {
+      form.reset();
+      setStatus('Thanks, your message has been sent.');
+      return;
+    }
+
+    const name = String(data.get('name') ?? '').trim();
+    const email = String(data.get('email') ?? '').trim();
+    const message = String(data.get('message') ?? '').trim();
+
+    if (!name || !email || !message) {
+      setStatus('Please add your name, email, and message.');
+      return;
+    }
+
+    if (!hasSupabaseConfig()) {
+      setStatus('Contact form is not connected yet. Please try again shortly.');
+      return;
+    }
+
+    submit?.setAttribute('disabled', '');
+    setStatus('Sending message...');
+
+    try {
+      await createContactMessage({ name, email, message, source: 'homepage-contact' });
+      form.reset();
+      setStatus('Thanks, your message has been sent.');
+    } catch (error) {
+      console.error(error);
+      setStatus('Unable to send your message right now. Please try again shortly.');
+    } finally {
+      submit?.removeAttribute('disabled');
+    }
+  });
+</script>

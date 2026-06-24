@@ -40,6 +40,13 @@ export interface SupabaseSession {
   };
 }
 
+export interface ContactMessage {
+  name: string;
+  email: string;
+  message: string;
+  source?: string;
+}
+
 export const runtimeCategories: RuntimeCategory[] = [
   {
     slug: 'everyday-movement',
@@ -150,7 +157,10 @@ async function supabaseFetch<T>(
   }
 
   if (response.status === 204) return undefined as T;
-  return (await response.json()) as T;
+
+  const text = await response.text();
+  if (!text) return undefined as T;
+  return JSON.parse(text) as T;
 }
 
 export async function signInWithPassword(email: string, password: string): Promise<SupabaseSession> {
@@ -258,5 +268,20 @@ export async function deleteProduct(slug: string, accessToken: string): Promise<
     headers: {
       Prefer: 'return=minimal',
     },
+  });
+}
+
+export async function createContactMessage(message: ContactMessage): Promise<void> {
+  await supabaseFetch<void>('/rest/v1/contact_messages', {
+    method: 'POST',
+    headers: {
+      Prefer: 'return=minimal',
+    },
+    body: JSON.stringify({
+      name: message.name,
+      email: message.email,
+      message: message.message,
+      source: message.source ?? 'homepage',
+    }),
   });
 }
