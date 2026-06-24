@@ -30,9 +30,20 @@ const { cta } = site;
           />
         </label>
 
+        <label>
+          <span>Phone number <small>optional</small></span>
+          <input class="cta__input" type="tel" name="phone" autocomplete="tel" />
+        </label>
+
         <label class="cta__wide">
-          <span>Message</span>
-          <textarea class="cta__input" name="message" rows="5" required></textarea>
+          <span>What would you like quoted?</span>
+          <textarea
+            class="cta__input"
+            name="message"
+            rows="5"
+            placeholder="Tell us which items, sizes, quantities, colours, or team requirements you have in mind."
+            required
+          ></textarea>
         </label>
 
         <label class="cta__trap" aria-hidden="true">
@@ -87,6 +98,10 @@ const { cta } = site;
     font-size: 0.82rem;
     font-weight: var(--weight-medium);
     color: var(--color-text-strong);
+  }
+  .cta__form small {
+    color: var(--color-muted);
+    font-weight: var(--weight-regular);
   }
   .cta__input {
     width: 100%;
@@ -184,10 +199,11 @@ const { cta } = site;
 
     const name = String(data.get('name') ?? '').trim();
     const email = String(data.get('email') ?? '').trim();
+    const phone = String(data.get('phone') ?? '').trim();
     const message = String(data.get('message') ?? '').trim();
 
     if (!name || !email || !message) {
-      setStatus('Please add your name, email, and message.');
+      setStatus('Please add your name, email, and quote details.');
       return;
     }
 
@@ -197,12 +213,12 @@ const { cta } = site;
     }
 
     submit?.setAttribute('disabled', '');
-    setStatus('Sending message...');
+    setStatus('Sending quote request...');
 
     try {
-      await createContactMessage({ name, email, message, source: 'homepage-contact' });
+      await createContactMessage({ name, email, phone, message, source: 'quote-request' });
       form.reset();
-      setStatus('Thanks, your message has been sent.');
+      setStatus('Thanks, your quote request has been sent.');
     } catch (error) {
       console.error(error);
       setStatus('Unable to send your message right now. Please try again shortly.');

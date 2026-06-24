@@ -43,6 +43,7 @@ export interface SupabaseSession {
 export interface ContactMessage {
   name: string;
   email: string;
+  phone?: string;
   message: string;
   source?: string;
 }
@@ -280,6 +281,7 @@ export async function createContactMessage(message: ContactMessage): Promise<voi
     body: JSON.stringify({
       name: message.name,
       email: message.email,
+      phone: message.phone || null,
       message: message.message,
       source: message.source ?? 'homepage',
     }),

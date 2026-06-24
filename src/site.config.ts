@@ -127,13 +127,13 @@ export const site = {
   ],
 
   cta: {
-    eyebrow: 'Get in touch',
-    title: 'Questions, sizing help, or team orders?',
+    eyebrow: 'Request a quote',
+    title: 'Need activewear for your child, club, or team?',
     subtitle:
-      'Send us a note and we will get back to you about products, availability, or anything you need before ordering.',
+      'Tell us what you are looking for and we will come back with availability, sizing guidance, and a quote. No online checkout needed.',
     placeholder: 'you@example.com',
-    button: 'Send message',
-    note: 'We will only use your details to respond to your enquiry.',
+    button: 'Request quote',
+    note: 'We will only use your details to respond to your quote request.',
   },
 
   footer: {
