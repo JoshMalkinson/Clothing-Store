@@ -230,3 +230,33 @@ export async function createProduct(
 
   return rows[0];
 }
+
+export async function updateProduct(
+  slug: string,
+  product: Omit<RuntimeProduct, 'id' | 'created_at' | 'updated_at'>,
+  accessToken: string,
+): Promise<RuntimeProduct> {
+  const rows = await supabaseFetch<RuntimeProduct[]>(
+    `/rest/v1/products?slug=eq.${encodeURIComponent(slug)}`,
+    {
+      method: 'PATCH',
+      accessToken,
+      headers: {
+        Prefer: 'return=representation',
+      },
+      body: JSON.stringify(product),
+    },
+  );
+
+  return rows[0];
+}
+
+export async function deleteProduct(slug: string, accessToken: string): Promise<void> {
+  await supabaseFetch<void>(`/rest/v1/products?slug=eq.${encodeURIComponent(slug)}`, {
+    method: 'DELETE',
+    accessToken,
+    headers: {
+      Prefer: 'return=minimal',
+    },
+  });
+}

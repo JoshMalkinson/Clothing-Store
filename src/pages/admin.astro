@@ -42,7 +42,7 @@ import { site } from '../site.config';
       <section class="admin__panel" data-editor-panel hidden>
         <div class="admin__bar">
           <div>
-            <h2>Add product</h2>
+            <h2 data-form-title>Add product</h2>
             <p data-session-label></p>
           </div>
           <button class="btn btn--ghost" type="button" data-sign-out>Sign out</button>
@@ -122,7 +122,8 @@ import { site } from '../site.config';
           </div>
 
           <div class="admin__actions admin__wide">
-            <button class="btn btn--primary" type="submit">Create product</button>
+            <button class="btn btn--primary" type="submit" data-submit-product>Create product</button>
+            <button class="btn btn--ghost" type="button" data-cancel-edit hidden>Cancel edit</button>
             <p data-form-status></p>
           </div>
         </form>
@@ -147,12 +148,13 @@ import { site } from '../site.config';
             <thead>
               <tr>
                 <th>Product</th>
+                <th>Slug</th>
                 <th>Category</th>
                 <th>Price</th>
                 <th>Featured</th>
                 <th>Published</th>
                 <th>Order</th>
-                <th>View</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody data-products-table></tbody>
@@ -170,7 +172,7 @@ import { site } from '../site.config';
     background: linear-gradient(180deg, var(--color-surface-green), var(--color-bg) 18rem);
   }
   .admin__inner {
-    max-width: 980px;
+    max-width: 1320px;
   }
   .admin__title {
     font-size: clamp(2.2rem, 1.5rem + 3vw, 3.4rem);
@@ -296,37 +298,58 @@ import { site } from '../site.config';
   }
   .admin__table-wrap {
     overflow-x: auto;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
   }
   .admin__table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 720px;
+    min-width: 1180px;
   }
-  .admin__table th,
-  .admin__table td {
-    padding: 0.8rem 0.75rem;
+  :global(.admin__table th),
+  :global(.admin__table td) {
+    padding: 0.95rem 0.9rem;
     border-bottom: 1px solid var(--color-line);
+    border-right: 1px solid var(--color-line);
     text-align: left;
     vertical-align: top;
   }
-  .admin__table th {
+  :global(.admin__table th:last-child),
+  :global(.admin__table td:last-child) {
+    border-right: 0;
+  }
+  :global(.admin__table tbody tr:last-child td) {
+    border-bottom: 0;
+  }
+  :global(.admin__table tbody tr:nth-child(even)) {
+    background: var(--color-bg-soft);
+  }
+  :global(.admin__table tbody tr:hover) {
+    background: var(--color-surface-green);
+  }
+  :global(.admin__table th) {
+    background: var(--color-surface);
     font-size: 0.74rem;
     font-weight: var(--weight-semibold);
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--color-muted);
   }
-  .admin__table td {
+  :global(.admin__table td) {
     font-size: 0.92rem;
     color: var(--color-text-strong);
   }
-  .admin__table small {
-    display: block;
-    margin-top: 0.1rem;
-    color: var(--color-muted);
-    font-size: 0.78rem;
+  :global(.admin__table th:last-child),
+  :global(.admin__table td:last-child) {
+    width: 21rem;
   }
-  .admin__pill {
+  :global(.admin__slug) {
+    color: var(--color-muted);
+    font-size: 0.84rem;
+    word-break: break-word;
+  }
+  :global(.admin__pill) {
     display: inline-flex;
     align-items: center;
     border: 1px solid var(--color-line);
@@ -336,9 +359,48 @@ import { site } from '../site.config';
     color: var(--color-text-strong);
     background: var(--color-bg-soft);
   }
-  .admin__table a {
+  :global(.admin__table a) {
     color: var(--color-accent-deep);
     font-weight: var(--weight-medium);
+  }
+  :global(.admin__row-actions) {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.9rem;
+    min-width: 20rem;
+    white-space: nowrap;
+  }
+  :global(.admin__action) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill);
+    background: var(--color-accent-strong);
+    color: var(--color-on-accent);
+    min-width: 4.75rem;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.78rem;
+    font-weight: var(--weight-semibold);
+    cursor: pointer;
+    transition: transform 0.2s var(--ease), background-color 0.2s var(--ease), border-color 0.2s var(--ease);
+  }
+  :global(.admin__action:hover) {
+    background: var(--color-accent-deep);
+    transform: translateY(-1px);
+  }
+  :global(.admin__action--edit) {
+    background: #2b7fc1;
+  }
+  :global(.admin__action--edit:hover) {
+    background: #1e6096;
+  }
+  :global(.admin__action--danger) {
+    background: #c55252;
+  }
+  :global(.admin__action--danger:hover) {
+    background: #9f3838;
   }
   @media (min-width: 720px) {
     .admin__form--grid {
@@ -350,10 +412,12 @@ import { site } from '../site.config';
 <script>
   import {
     createProduct,
+    deleteProduct,
     hasSupabaseConfig,
     listAdminProducts,
     signInWithPassword,
     slugify,
+    updateProduct,
     uploadProductImage,
     type CategorySlug,
     type RuntimeProduct,
@@ -378,12 +442,17 @@ import { site } from '../site.config';
   const productForm = document.querySelector<HTMLFormElement>('[data-product-form]');
   const globalStatus = document.querySelector<HTMLElement>('[data-global-status]');
   const formStatus = document.querySelector<HTMLElement>('[data-form-status]');
+  const formTitle = document.querySelector<HTMLElement>('[data-form-title]');
+  const submitProduct = document.querySelector<HTMLButtonElement>('[data-submit-product]');
+  const cancelEdit = document.querySelector<HTMLButtonElement>('[data-cancel-edit]');
   const sessionLabel = document.querySelector<HTMLElement>('[data-session-label]');
   const signOut = document.querySelector<HTMLButtonElement>('[data-sign-out]');
   const nameInput = productForm?.elements.namedItem('name') as HTMLInputElement | null;
   const slugInput = productForm?.elements.namedItem('slug') as HTMLInputElement | null;
   let slugWasEdited = false;
   let session: SupabaseSession | null = loadSession();
+  let editingProduct: RuntimeProduct | null = null;
+  let adminProducts: RuntimeProduct[] = [];
 
   function setText(el: HTMLElement | null, message = '') {
     if (el) el.textContent = message;
@@ -442,6 +511,81 @@ import { site } from '../site.config';
       .filter(Boolean);
   }
 
+  function field<T extends HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>(name: string): T | null {
+    return (productForm?.elements.namedItem(name) as T | null) ?? null;
+  }
+
+  function setChecked(name: string, checked: boolean) {
+    const input = field<HTMLInputElement>(name);
+    if (input) input.checked = checked;
+  }
+
+  function setFormMode(product: RuntimeProduct | null) {
+    editingProduct = product;
+    setText(formTitle, product ? `Edit ${product.name}` : 'Add product');
+    if (submitProduct) submitProduct.textContent = product ? 'Save changes' : 'Create product';
+    cancelEdit?.toggleAttribute('hidden', !product);
+    setText(formStatus, product ? 'Editing an existing product.' : '');
+  }
+
+  function resetProductForm(message = '') {
+    productForm?.reset();
+    slugWasEdited = false;
+    const sortOrder = field<HTMLInputElement>('sort_order');
+    if (sortOrder) sortOrder.value = '99';
+    setChecked('published', true);
+    setFormMode(null);
+    setText(formStatus, message);
+  }
+
+  function readProductForm(imageUrl: string | null) {
+    if (!productForm) return null;
+    const data = new FormData(productForm);
+    const slug = slugify(String(data.get('slug') ?? data.get('name') ?? ''));
+    const sizes = csv(data.get('sizes'));
+    const colors = csv(data.get('colors'));
+
+    if (!slug || !sizes.length || !colors.length) {
+      setText(formStatus, 'Add a name, slug, at least one size, and at least one colour.');
+      return null;
+    }
+
+    return {
+      slug,
+      name: String(data.get('name') ?? '').trim(),
+      category: String(data.get('category')) as CategorySlug,
+      price: Number(data.get('price') ?? 0),
+      sizes,
+      colors,
+      summary: String(data.get('summary') ?? '').trim(),
+      description: String(data.get('description') ?? '').trim(),
+      tag: String(data.get('tag') ?? '').trim() || null,
+      featured: data.get('featured') === 'on',
+      sort_order: Number(data.get('sort_order') ?? 99),
+      image_url: imageUrl,
+      published: data.get('published') === 'on',
+    };
+  }
+
+  function beginEdit(product: RuntimeProduct) {
+    if (!productForm) return;
+    field<HTMLInputElement>('name')!.value = product.name;
+    field<HTMLInputElement>('slug')!.value = product.slug;
+    field<HTMLSelectElement>('category')!.value = product.category;
+    field<HTMLInputElement>('price')!.value = String(product.price);
+    field<HTMLInputElement>('sizes')!.value = product.sizes.join(', ');
+    field<HTMLInputElement>('colors')!.value = product.colors.join(', ');
+    field<HTMLInputElement>('tag')!.value = product.tag ?? '';
+    field<HTMLInputElement>('sort_order')!.value = String(product.sort_order);
+    field<HTMLInputElement>('summary')!.value = product.summary;
+    field<HTMLTextAreaElement>('description')!.value = product.description;
+    setChecked('featured', product.featured);
+    setChecked('published', product.published);
+    slugWasEdited = true;
+    setFormMode(product);
+    productForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   function loadPreviewProducts(): Array<{ name: string; slug: string; category: string; price: number }> {
     const raw = localStorage.getItem(previewKey);
     if (!raw) return [];
@@ -485,18 +629,19 @@ import { site } from '../site.config';
       ...products.map((product) => {
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td><strong></strong><small></small></td>
+          <td><strong></strong></td>
+          <td class="admin__slug"></td>
           <td></td>
           <td></td>
           <td><span class="admin__pill">No</span></td>
           <td><span class="admin__pill">Preview</span></td>
           <td>-</td>
-          <td>-</td>
+          <td><span class="admin__pill">Local only</span></td>
         `;
         row.querySelector('strong')!.textContent = product.name;
-        row.querySelector('small')!.textContent = product.slug;
-        row.children[1].textContent = product.category;
-        row.children[2].textContent = `R${product.price}`;
+        row.children[1].textContent = product.slug;
+        row.children[2].textContent = product.category;
+        row.children[3].textContent = `R${product.price}`;
         return row;
       }),
     );
@@ -504,26 +649,39 @@ import { site } from '../site.config';
 
   function renderProductsTable(products: RuntimeProduct[]) {
     if (!productsTable) return;
+    adminProducts = products;
     productsTable.replaceChildren(
       ...products.map((product) => {
         const row = document.createElement('tr');
-        const view = product.published ? `<a href="${productUrl(product.slug)}">View</a>` : '<span class="admin__pill">Hidden</span>';
+        row.dataset.slug = product.slug;
         row.innerHTML = `
-          <td><strong></strong><small></small></td>
+          <td><strong></strong></td>
+          <td class="admin__slug"></td>
           <td></td>
           <td></td>
           <td><span class="admin__pill"></span></td>
           <td><span class="admin__pill"></span></td>
           <td></td>
-          <td>${view}</td>
+          <td>
+            <div class="admin__row-actions">
+              <a class="admin__action" data-view-product>View</a>
+              <button class="admin__action admin__action--edit" type="button" data-edit-product>Edit</button>
+              <button class="admin__action admin__action--danger" type="button" data-delete-product>Delete</button>
+            </div>
+          </td>
         `;
         row.querySelector('strong')!.textContent = product.name;
-        row.querySelector('small')!.textContent = product.slug;
-        row.children[1].textContent = categoryLabel(product.category);
-        row.children[2].textContent = formatPrice(product.price);
-        row.children[3].querySelector('span')!.textContent = product.featured ? 'Yes' : 'No';
-        row.children[4].querySelector('span')!.textContent = product.published ? 'Yes' : 'No';
-        row.children[5].textContent = String(product.sort_order);
+        row.children[1].textContent = product.slug;
+        row.children[2].textContent = categoryLabel(product.category);
+        row.children[3].textContent = formatPrice(product.price);
+        row.children[4].querySelector('span')!.textContent = product.featured ? 'Yes' : 'No';
+        row.children[5].querySelector('span')!.textContent = product.published ? 'Yes' : 'No';
+        row.children[6].textContent = String(product.sort_order);
+        const view = row.querySelector<HTMLAnchorElement>('[data-view-product]');
+        if (view) {
+          view.href = productUrl(product.slug);
+          view.toggleAttribute('hidden', !product.published);
+        }
         return row;
       }),
     );
@@ -581,29 +739,19 @@ import { site } from '../site.config';
 
     const data = new FormData(productForm);
     const slug = slugify(String(data.get('slug') ?? data.get('name') ?? ''));
-    const sizes = csv(data.get('sizes'));
-    const colors = csv(data.get('colors'));
     const file = data.get('image');
-
-    if (!slug || !sizes.length || !colors.length) {
-      setText(formStatus, 'Add a name, slug, at least one size, and at least one colour.');
-      return;
-    }
+    const fallbackImage = editingProduct?.image_url ?? null;
+    const draftProduct = readProductForm(fallbackImage);
+    if (!draftProduct) return;
 
     if (!hasSupabaseConfig()) {
       savePreviewProduct({
         slug,
-        name: String(data.get('name') ?? '').trim(),
-        category: String(data.get('category') ?? ''),
-        price: Number(data.get('price') ?? 0),
+        name: draftProduct.name,
+        category: draftProduct.category,
+        price: draftProduct.price,
       });
-      productForm.reset();
-      slugWasEdited = false;
-      const sortOrder = productForm.elements.namedItem('sort_order') as HTMLInputElement | null;
-      const published = productForm.elements.namedItem('published') as HTMLInputElement | null;
-      if (sortOrder) sortOrder.value = '99';
-      if (published) published.checked = true;
-      setText(formStatus, 'Preview product saved locally. Connect Supabase to publish live.');
+      resetProductForm('Preview product saved locally. Connect Supabase to publish live.');
       renderPreviewProductsTable();
       return;
     }
@@ -613,49 +761,69 @@ import { site } from '../site.config';
       return;
     }
 
-    setText(formStatus, 'Creating product...');
+    setText(formStatus, editingProduct ? 'Saving changes...' : 'Creating product...');
 
     try {
-      let imageUrl = '';
+      let imageUrl = fallbackImage;
       if (file instanceof File && file.size > 0) {
         setText(formStatus, 'Uploading image...');
         imageUrl = await uploadProductImage(file, slug, session.access_token);
       }
 
-      await createProduct(
-        {
-          slug,
-          name: String(data.get('name') ?? '').trim(),
-          category: String(data.get('category')) as CategorySlug,
-          price: Number(data.get('price') ?? 0),
-          sizes,
-          colors,
-          summary: String(data.get('summary') ?? '').trim(),
-          description: String(data.get('description') ?? '').trim(),
-          tag: String(data.get('tag') ?? '').trim() || null,
-          featured: data.get('featured') === 'on',
-          sort_order: Number(data.get('sort_order') ?? 99),
-          image_url: imageUrl || null,
-          published: data.get('published') === 'on',
-        },
-        session.access_token,
-      );
+      const productPayload = { ...draftProduct, image_url: imageUrl || null };
+      if (editingProduct) {
+        await updateProduct(editingProduct.slug, productPayload, session.access_token);
+      } else {
+        await createProduct(productPayload, session.access_token);
+      }
 
-      productForm.reset();
-      slugWasEdited = false;
-      const sortOrder = productForm.elements.namedItem('sort_order') as HTMLInputElement | null;
-      const published = productForm.elements.namedItem('published') as HTMLInputElement | null;
-      if (sortOrder) sortOrder.value = '99';
-      if (published) published.checked = true;
-      setText(formStatus, 'Product created. It can appear on the shop page immediately.');
+      const successMessage = editingProduct
+        ? 'Product updated.'
+        : 'Product created. It can appear on the shop page immediately.';
+      resetProductForm(successMessage);
       await loadProductsTable();
     } catch (error) {
-      setText(formStatus, error instanceof Error ? error.message : 'Unable to create product.');
+      setText(formStatus, error instanceof Error ? error.message : 'Unable to save product.');
     }
   });
 
   refreshProducts?.addEventListener('click', () => {
     void loadProductsTable();
+  });
+
+  cancelEdit?.addEventListener('click', () => {
+    resetProductForm('Edit cancelled.');
+  });
+
+  productsTable?.addEventListener('click', async (event) => {
+    const target = event.target as HTMLElement;
+    const row = target.closest<HTMLTableRowElement>('tr[data-slug]');
+    if (!row?.dataset.slug) return;
+    const product = adminProducts.find((item) => item.slug === row.dataset.slug);
+    if (!product) return;
+
+    if (target.closest('[data-edit-product]')) {
+      beginEdit(product);
+      return;
+    }
+
+    if (target.closest('[data-delete-product]')) {
+      if (!session) {
+        setText(productsStatus, 'Sign in before deleting products.');
+        return;
+      }
+      const confirmed = window.confirm(`Delete "${product.name}"? This cannot be undone.`);
+      if (!confirmed) return;
+
+      setText(productsStatus, `Deleting ${product.name}...`);
+      try {
+        await deleteProduct(product.slug, session.access_token);
+        if (editingProduct?.slug === product.slug) resetProductForm('Deleted product.');
+        await loadProductsTable();
+      } catch (error) {
+        setText(productsStatus, error instanceof Error ? error.message : 'Unable to delete product.');
+      }
+    }
   });
 
   renderAuthState();
