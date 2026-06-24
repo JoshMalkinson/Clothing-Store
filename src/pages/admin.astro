@@ -240,20 +240,33 @@ import { site } from '../site.config';
   .admin__form select,
   .admin__form textarea {
     width: 100%;
-    border: 1px solid var(--color-line);
+    border: 2px solid color-mix(in srgb, var(--color-muted) 62%, var(--color-line));
     border-radius: var(--radius-sm);
     background: var(--color-bg);
     padding: 0.8rem 0.9rem;
     outline: none;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+    transition:
+      border-color 0.2s var(--ease),
+      box-shadow 0.2s var(--ease),
+      background 0.2s var(--ease);
   }
   .admin__form textarea {
     resize: vertical;
   }
+  .admin__form input:hover,
+  .admin__form select:hover,
+  .admin__form textarea:hover {
+    border-color: color-mix(in srgb, var(--color-accent-deep) 38%, var(--color-line));
+  }
   .admin__form input:focus-visible,
   .admin__form select:focus-visible,
   .admin__form textarea:focus-visible {
-    border-color: var(--color-accent);
-    box-shadow: 0 0 0 4px var(--color-accent-soft);
+    border-color: var(--color-accent-deep);
+    background: #fff;
+    box-shadow:
+      0 0 0 4px var(--color-accent-soft),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
   }
   .admin__checks {
     display: flex;

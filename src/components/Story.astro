@@ -1,5 +1,6 @@
 ---
 import { site } from '../site.config';
+import { withBase } from '../lib/url';
 const { approach } = site;
 ---
 
@@ -24,7 +25,7 @@ const { approach } = site;
 
     <div class="story__visual" aria-hidden="true">
       <div class="story__panel">
-        <span class="story__panel-label">{approach.imageCaption}</span>
+        <img src={withBase('/images/fabric-detail.webp')} alt="" loading="lazy" decoding="async" />
       </div>
       <span class="story__dot"></span>
     </div>
@@ -79,10 +80,22 @@ const { approach } = site;
     display: flex;
     align-items: flex-end;
     padding: 1.5rem;
+    overflow: hidden;
+    position: relative;
   }
-  .story__panel-label {
-    font-size: 0.82rem;
-    color: var(--color-muted);
+  .story__panel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(36, 58, 54, 0.18));
+    pointer-events: none;
+  }
+  .story__panel img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
   .story__dot {
     position: absolute;

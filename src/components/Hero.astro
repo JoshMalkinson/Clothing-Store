@@ -27,7 +27,12 @@ const { hero } = site;
 
     <div class="hero__visual">
       <div class="hero__panel">
-        <span class="hero__panel-label">{hero.imageCaption}</span>
+        <img
+          src={withBase('/images/activewear-hero.webp')}
+          alt="Young athletes wearing soft activewear outdoors"
+          loading="eager"
+          decoding="async"
+        />
       </div>
       <div class="hero__chip">
         <strong>{hero.statValue}</strong>
@@ -123,11 +128,22 @@ const { hero } = site;
     display: flex;
     align-items: flex-end;
     padding: 1.5rem;
+    overflow: hidden;
   }
-  .hero__panel-label {
-    font-size: 0.82rem;
-    color: var(--color-muted);
-    letter-spacing: 0.04em;
+  .hero__panel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(32, 45, 43, 0.24));
+    pointer-events: none;
+  }
+  .hero__panel img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
   }
   .hero__chip {
     position: absolute;
